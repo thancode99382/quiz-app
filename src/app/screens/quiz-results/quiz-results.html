@@ -1,14 +1,86 @@
 <div class="results-container">
-  <h2>Quiz Results</h2>
-  
-  <!-- This is where you would add your quiz results content -->
-  <div class="results-content">
-    <p>Your quiz results will appear here.</p>
+  <div *ngIf="!quizResult" class="loading">
+    <div class="spinner"></div>
+    <p>Loading results...</p>
   </div>
 
-  <button 
-    class="home-btn" 
-    (click)="backToHome()">
-    Back to Home
-  </button>
+  <div *ngIf="quizResult" class="results-content">
+    <h1 class="results-title">Quiz Results</h1>
+    
+    <!-- Performance message -->
+    <div class="performance-message">
+      {{getPerformanceMessage()}}
+    </div>
+    
+    <!-- Score card -->
+    <div class="score-card">
+      <div class="score-circle" [style.background]="getScoreColor()">
+        <span class="score-percentage">{{getScorePercentage()}}%</span>
+      </div>
+      <div class="score-details">
+        <p class="score-text">You got <strong>{{quizResult.correctAnswers}}</strong> out of <strong>{{quizResult.totalQuestions}}</strong> questions correct.</p>
+        <p class="time-taken">Time taken: <strong>{{getFormattedTime(quizResult.totalTime)}}</strong></p>
+        <p class="pass-status" [class.passed]="quizResult.passed" [class.failed]="!quizResult.passed">
+          {{getPassMessage()}}
+        </p>
+      </div>
+    </div>
+    
+    <!-- Category breakdown -->
+    <div class="category-breakdown">
+      <h3>Category Performance</h3>
+      <div class="category-stats">
+        <div class="category-item" *ngFor="let category of getCorrectByCategory() | keyvalue">
+          <div class="category-name">{{category.key}}</div>
+          <div class="category-progress">
+            <div class="category-bar" 
+                 [style.width.%]="(category.value.correct / category.value.total) * 100"
+                 [style.background-color]="(category.value.correct / category.value.total) >= 0.6 ? '#4caf50' : '#f44336'">
+            </div>
+          </div>
+          <div class="category-score">
+            {{category.value.correct}}/{{category.value.total}}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="action-buttons">
+      <button class="review-btn" (click)="toggleReview()">
+        {{ showReview ? 'Hide Review' : 'Review Answers' }}
+      </button>
+      <button class="restart-btn" (click)="restartQuiz()">
+        Take Quiz Again
+      </button>
+    </div>
+    
+    <!-- Review answers section -->
+    <div *ngIf="showReview" class="review-section">
+      <h2 class="review-title">Answer Review</h2>
+      <div class="question-review" *ngFor="let question of quizResult.questions; let i = index"
+           [style.animation-delay]="getAnimationDelay(i)">
+        <div class="question-header">
+          <span class="question-number">Question {{i + 1}}</span>
+          <span class="question-result" [class.correct]="question.is_correct" [class.incorrect]="!question.is_correct">
+            {{question.is_correct ? 'Correct' : 'Incorrect'}}
+          </span>
+        </div>
+        <p class="question-text">{{question.question}}</p>
+        <div class="answer-review">
+          <div class="answer-options">
+            <div *ngFor="let answer of question.all_answers" 
+                 class="review-answer-option"
+                 [class.selected]="answer === question.selected_answer"
+                 [class.correct]="answer === question.correct_answer"
+                 [class.incorrect]="answer === question.selected_answer && answer !== question.correct_answer">
+              {{answer}}
+              <span *ngIf="answer === question.correct_answer" class="answer-icon correct-icon">✓</span>
+              <span *ngIf="answer === question.selected_answer && answer !== question.correct_answer" class="answer-icon incorrect-icon">✗</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
