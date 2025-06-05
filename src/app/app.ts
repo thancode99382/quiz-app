@@ -3,10 +3,15 @@ import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.html',
+  template: `
+    <div class="app-container">
+      <router-outlet></router-outlet>
+    </div>
+  `,
   styleUrl: './app.scss'
 })
-export class App {
-  protected title = 'quiz-app';
+export class AppComponent {
+  title = 'quiz-app';
 }

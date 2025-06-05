@@ -1,0 +1,60 @@
+<div class="question-container">
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading questions...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-container">
+    <div class="error-icon">❌</div>
+    <h3>Error</h3>
+    <p>{{errorMessage}}</p>
+    <button class="back-btn" (click)="goBackToWelcome()">
+      Back to Home
+    </button>
+  </div>
+
+  <div *ngIf="!loading && !errorMessage && currentQuestion" class="quiz-content">
+    <!-- Timer and progress -->
+    <div class="quiz-header">
+      <div class="timer">⏱️ {{getFormattedTime()}}</div>
+      <div class="question-counter">
+        Question {{currentQuestionNumber}} of {{totalQuestions}}
+      </div>
+    </div>
+    
+    <!-- Progress bar -->
+    <div class="progress-container">
+      <div class="progress-bar" [style.width.%]="progress"></div>
+    </div>
+
+    <!-- Question category and difficulty -->
+    <div class="question-meta">
+      <span class="category">{{currentQuestion.category}}</span>
+      <span class="difficulty" [ngClass]="currentQuestion.difficulty">
+        {{currentQuestion.difficulty | titlecase}}
+      </span>
+    </div>
+
+    <!-- Question text -->
+    <h2 class="question-text">{{currentQuestion.question}}</h2>
+    
+    <!-- Answer options -->
+    <div class="answers-container">
+      <button 
+        *ngFor="let answer of currentQuestion.all_answers" 
+        class="answer-option"
+        [class.selected]="isAnswerSelected(answer)"
+        [class.correct]="feedback && answer === currentQuestion.correct_answer"
+        [class.incorrect]="feedback && isAnswerSelected(answer) && answer !== currentQuestion.correct_answer"
+        [disabled]="feedback !== null"
+        (click)="selectAnswer(answer)">
+        {{answer}}
+      </button>
+    </div>
+    
+    <!-- Feedback message -->
+    <div *ngIf="feedback" class="feedback" [class.correct]="feedback.isCorrect" [class.incorrect]="!feedback.isCorrect">
+      {{feedback.message}}
+    </div>
+  </div>
+</div>
